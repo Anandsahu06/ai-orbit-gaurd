@@ -76,6 +76,18 @@ class MLRiskEngine:
         Calculates prototype risk score (0-100), categorical risk level,
         and generates explainability factor attributions.
         """
+        # Validate inputs: must be finite and non-negative
+        for name, val in [
+            ("miss_distance_km", miss_distance_km),
+            ("relative_velocity_kms", relative_velocity_kms),
+            ("time_to_tca_hours", time_to_tca_hours),
+            ("altitude_km", altitude_km),
+        ]:
+            if isinstance(val, bool) or not isinstance(val, (int, float, np.number)) or not math.isfinite(val):
+                raise ValueError(f"{name} must be a finite numeric value (received {val}).")
+            if val < 0.0:
+                raise ValueError(f"{name} cannot be negative (received {val}).")
+
         # 1. Base analytical formulation for smooth continuum scoring (0-100)
         # Miss distance influence: exponential decay with scale 3.0 km
         dist_factor = math.exp(-miss_distance_km / 3.2) * 55.0
