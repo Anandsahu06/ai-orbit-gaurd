@@ -1,11 +1,7 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
-const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono-data' })
 
 export const metadata: Metadata = {
   title: {
@@ -37,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable} bg-background`}>
+    <html lang="en" className="bg-background">
       <body className="font-sans antialiased">
         <TooltipProvider>{children}</TooltipProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
