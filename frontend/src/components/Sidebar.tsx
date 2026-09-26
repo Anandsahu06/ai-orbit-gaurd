@@ -81,15 +81,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Footer Hackathon attribution */}
+      {/* Footer actions */}
       <div className="p-3 border-t border-slate-100">
-        {isOpen && (
-          <div className="p-2 bg-slate-50 rounded border border-slate-200/80 mb-2">
-            <div className="text-[10px] font-bold text-slate-800 tracking-wide">IPEC GRAND HACK 2026</div>
-            <div className="text-[9px] text-slate-500">Technical Evaluation Prototype</div>
-          </div>
-        )}
-
         <button
           onClick={() => setActiveTab('home')}
           className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
