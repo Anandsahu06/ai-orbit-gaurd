@@ -1,13 +1,19 @@
 import type {
   Alert,
   AnalyticsSummary,
+  BackendManeuverRequest,
+  BackendManeuverSimulationResponse,
   ConjunctionEvent,
   DashboardSummary,
+  ManeuverDirection,
   OrbitTrack,
   RiskAssessment,
+  RiskLevel,
   Satellite,
+  ScenarioId,
   SimulationParams,
   SimulationResult,
+  SimulationScenario,
   SystemStatus,
 } from '@/lib/types/api'
 import { mockConjunctions, mockRiskAssessment } from '@/lib/data/mock/conjunctions'
@@ -18,7 +24,7 @@ import {
   mockSystemStatus,
 } from '@/lib/data/mock/insights'
 import { mockOrbitTracks, mockSatellites } from '@/lib/data/mock/satellites'
-import { mockSimulation } from '@/lib/data/mock/simulation'
+import { mockSimulation, separationSeries } from '@/lib/data/mock/simulation'
 
 /**
  * Centralised frontend API layer.
@@ -54,12 +60,67 @@ async function request<T>(
     return structuredClone(data)
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  const url =
+    API_BASE_URL.endsWith('/api') && cleanPath.startsWith('/api/')
+      ? `${API_BASE_URL}${cleanPath.slice(4)}`
+      : cleanPath.startsWith('/api/')
+        ? `${API_BASE_URL}${cleanPath}`
+        : API_BASE_URL.endsWith('/api')
+          ? `${API_BASE_URL}${cleanPath}`
+          : `${API_BASE_URL}/api${cleanPath}`
+
+  const res = await fetch(url, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
   if (!res.ok) throw new ApiError(`Request failed: ${res.statusText}`, res.status)
   return (await res.json()) as T
+}
+
+function normalizeSimulationResponse(
+  raw: BackendManeuverSimulationResponse | SimulationResult,
+  targetConjunctionId?: string,
+): SimulationResult {
+  if (raw && 'separation' in raw && Array.isArray((raw as any).separation)) {
+    return raw as SimulationResult
+  }
+
+  const backend = raw as BackendManeuverSimulationResponse
+  const scenarios: SimulationScenario[] = (backend.scenarios ?? []).map((s) => {
+    let id: ScenarioId = 'custom'
+    if (s.scenario_id === 'SCEN-0') id = 'baseline'
+    else if (s.scenario_id === 'SCEN-A') id = 'scenarioA'
+    else if (s.scenario_id === 'SCEN-B') id = 'scenarioB'
+
+    const dir = s.direction?.toUpperCase()
+    const validDir: ManeuverDirection | null =
+      dir === 'PROGRADE' || dir === 'RETROGRADE' || dir === 'RADIAL' || dir === 'NORMAL'
+        ? (dir as ManeuverDirection)
+        : null
+
+    return {
+      id,
+      label: s.name,
+      deltaVMs: s.delta_v_ms,
+      direction: validDir,
+      leadTimeHours: s.burn_time_before_tca_h > 0 ? s.burn_time_before_tca_h : null,
+      missDistanceKm: s.miss_distance_km,
+      riskScore: s.risk_score,
+      riskLevel: s.risk_level as RiskLevel,
+      riskReductionPct: s.risk_reduction_pct,
+      description: s.description,
+    }
+  })
+
+  return {
+    conjunctionId: targetConjunctionId || backend.conjunction_id,
+    scenarios,
+    separation: separationSeries(scenarios),
+    generatedAt: backend.tca || new Date().toISOString(),
+    recommendation: backend.recommendation,
+    simulationNotes: backend.simulation_notes,
+  }
 }
 
 export const api = {
@@ -93,18 +154,32 @@ export const api = {
 
   getAlerts: () => request<Alert[]>('/alerts', () => mockAlerts),
 
-  getSimulationScenarios: (conjunctionId: string) =>
-    request<SimulationResult>(`/simulations/${encodeURIComponent(conjunctionId)}`, () =>
-      mockSimulation(conjunctionId),
-    ),
+  getSimulationScenarios: async (conjunctionId: string): Promise<SimulationResult> => {
+    const raw = await request<BackendManeuverSimulationResponse | SimulationResult>(
+      `/api/simulation/scenarios/${encodeURIComponent(conjunctionId)}`,
+      () => mockSimulation(conjunctionId),
+    )
+    return normalizeSimulationResponse(raw, conjunctionId)
+  },
 
-  runSimulation: (params: SimulationParams) =>
-    request<SimulationResult>(
-      '/simulations',
+  runSimulation: async (params: SimulationParams): Promise<SimulationResult> => {
+    const body: BackendManeuverRequest = {
+      conjunction_id: params.conjunctionId,
+      delta_v_ms: params.deltaVMs,
+      direction: params.direction,
+      timing_offset_hours: params.leadTimeHours,
+    }
+    const raw = await request<BackendManeuverSimulationResponse | SimulationResult>(
+      '/api/simulation',
       () => {
         const { conjunctionId, ...custom } = params
         return mockSimulation(conjunctionId, custom)
       },
-      { method: 'POST', body: JSON.stringify(params) },
-    ),
+      {
+        method: 'POST',
+        body: JSON.stringify(body),
+      },
+    )
+    return normalizeSimulationResponse(raw, params.conjunctionId)
+  },
 }

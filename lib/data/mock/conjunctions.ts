@@ -34,7 +34,7 @@ interface Seed {
 
 const SEEDS: Seed[] = [
   { id: 'CJ-2041', a: 'SAT-117', b: 'DEB-09', hours: 3.4, miss: 0.18, vel: 13.2, score: 91, level: 'CRITICAL', status: 'OPEN' },
-  { id: 'CJ-2038', a: 'SAT-104', b: 'DEB-27', hours: 6.2, miss: 0.42, vel: 11.8, score: 82, level: 'HIGH', status: 'OPEN' },
+  { id: 'CJ-2038', a: 'SAT-104', b: 'DEB-27', hours: 6.2, miss: 0.42, vel: 11.8, score: 83.3, level: 'CRITICAL', status: 'OPEN' },
   { id: 'CJ-2044', a: 'SAT-101', b: 'DEB-15', hours: 9.8, miss: 0.61, vel: 9.4, score: 76, level: 'HIGH', status: 'OPEN' },
   { id: 'CJ-2036', a: 'SAT-115', b: 'DEB-38', hours: 14.5, miss: 0.94, vel: 12.6, score: 68, level: 'HIGH', status: 'MONITORING' },
   { id: 'CJ-2047', a: 'SAT-116', b: 'DEB-34', hours: 17.1, miss: 1.36, vel: 7.9, score: 57, level: 'MEDIUM', status: 'MONITORING' },

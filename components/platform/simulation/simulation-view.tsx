@@ -79,7 +79,7 @@ export function SimulationView({ initialId }: { initialId?: string }) {
                     <Label htmlFor="dv">Delta-V</Label>
                     <span className="font-mono text-sm font-semibold text-navy tabular">{deltaV.toFixed(2)} m/s</span>
                   </div>
-                  <Slider id="dv" min={0.05} max={2} step={0.05} value={[deltaV]} onValueChange={(v) => setDeltaV(sliderValue(v))} aria-label="Delta-V in metres per second" />
+                  <Slider id="dv" min={0.1} max={50} step={0.5} value={[deltaV]} onValueChange={(v) => setDeltaV(sliderValue(v))} aria-label="Delta-V in metres per second" />
                 </div>
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
@@ -106,7 +106,7 @@ export function SimulationView({ initialId }: { initialId?: string }) {
                 </div>
                 <Button onClick={runCustom} disabled={run.isMutating} className="bg-orange text-white hover:bg-orange/90">
                   {run.isMutating ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <Play data-icon="inline-start" />}
-                  {run.isMutating ? 'Running simulation…' : 'Run Simulation'}
+                  {run.isMutating ? 'Recalculating…' : 'Recalculate'}
                 </Button>
                 {run.error && <p className="text-xs text-danger" role="alert">Simulation request failed. Try again.</p>}
               </div>
@@ -118,15 +118,23 @@ export function SimulationView({ initialId }: { initialId?: string }) {
               ) : !result ? (
                 <LoadingState label="Loading scenarios…" />
               ) : (
-                <div className="grid h-full gap-4 sm:grid-cols-2">
-                  {result.scenarios.map((s) => (
-                    <ScenarioCard key={s.id} scenario={s} />
-                  ))}
-                  {!customResult && (
-                    <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-card p-4 text-center">
-                      <FlaskConical className="size-5 text-muted-foreground" aria-hidden="true" />
-                      <p className="text-sm font-medium text-navy">Custom scenario</p>
-                      <p className="text-xs text-muted-foreground">Configure a maneuver and run it to compare here.</p>
+                <div className="flex flex-col gap-4">
+                  <div className="grid h-full gap-4 sm:grid-cols-2">
+                    {result.scenarios.map((s) => (
+                      <ScenarioCard key={s.id} scenario={s} />
+                    ))}
+                    {!customResult && (
+                      <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed bg-card p-4 text-center">
+                        <FlaskConical className="size-5 text-muted-foreground" aria-hidden="true" />
+                        <p className="text-sm font-medium text-navy">Custom scenario</p>
+                        <p className="text-xs text-muted-foreground">Configure a maneuver and run it to compare here.</p>
+                      </div>
+                    )}
+                  </div>
+                  {result.recommendation && (
+                    <div className="rounded-lg border bg-subtle p-3 text-xs leading-relaxed text-muted-foreground">
+                      <span className="font-semibold text-navy">Recommendation: </span>
+                      {result.recommendation}
                     </div>
                   )}
                 </div>

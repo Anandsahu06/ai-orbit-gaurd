@@ -1,11 +1,7 @@
-import math
 import logging
-from typing import List, Dict, Optional
+from typing import List, Optional
 from datetime import datetime, timezone, timedelta
-import numpy as np
 from app.models.schemas import ConjunctionEvent
-from app.services.tle_service import tle_service
-from app.services.orbital_engine import orbital_engine, datetime_to_jd_fr, gmst_from_jd, teme_to_ecef
 from app.services.ml_risk_engine import ml_risk_engine
 
 logger = logging.getLogger(__name__)
@@ -24,8 +20,7 @@ class ConjunctionEngine:
         now = datetime.now(timezone.utc)
         events: List[ConjunctionEvent] = []
 
-        # 1. Primary Prototype Demo Conjunction (Matches PDF Screen C & Screen D exactly)
-        # SAT-104 vs DEB-27 with 0.42 km miss distance and Risk Score 82 (HIGH)
+        # 1. Primary Prototype Demo Conjunction: SAT-104 vs DEB-27
         demo_tca = now + timedelta(hours=14, minutes=32)
         demo_score, demo_level, demo_factors = ml_risk_engine.compute_risk_score(
             miss_distance_km=0.42,
@@ -33,9 +28,6 @@ class ConjunctionEngine:
             time_to_tca_hours=14.5,
             altitude_km=542.0
         )
-        # Ensure exact match with PDF Page 3 & Page 4
-        demo_score = 82.0
-        demo_level = "HIGH"
 
         events.append(ConjunctionEvent(
             id="CONJ-2026-0104",
@@ -49,11 +41,7 @@ class ConjunctionEngine:
             time_to_tca_hours=14.5,
             risk_score=demo_score,
             risk_level=demo_level,
-            risk_factors=[
-                "Minimum separation of 0.42 km is well below the 1.0 km hard screening threshold.",
-                "Relative velocity of 11.84 km/s severely compresses collision geometry.",
-                "TCA is approaching within 14.5 hours in a congested 542 km LEO orbit."
-            ],
+            risk_factors=demo_factors,
             altitude_km=542.0,
             is_demo=True,
             status="ACTIVE"

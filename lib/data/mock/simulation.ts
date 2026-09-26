@@ -45,8 +45,11 @@ function placeholderScenario(
   }
 }
 
-function separationSeries(scenarios: SimulationScenario[]): SeparationPoint[] {
-  const [baseline, a, b, custom] = scenarios
+export function separationSeries(scenarios: SimulationScenario[]): SeparationPoint[] {
+  const baseline = scenarios.find((s) => s.id === 'baseline') ?? scenarios[0]
+  const a = scenarios.find((s) => s.id === 'scenarioA') ?? scenarios[1] ?? baseline
+  const b = scenarios.find((s) => s.id === 'scenarioB') ?? scenarios[2] ?? a
+  const custom = scenarios.find((s) => s.id === 'custom')
   const relVel = 0.35
   const curve = (min: number, t: number) => round(Math.sqrt(min ** 2 + (relVel * t) ** 2))
   return Array.from({ length: 25 }, (_, i) => {

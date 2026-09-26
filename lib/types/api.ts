@@ -97,6 +97,41 @@ export interface SimulationParams {
   leadTimeHours: number
 }
 
+export interface BackendScenarioComparisonItem {
+  scenario_id: string
+  name: string
+  delta_v_ms: number
+  delta_v_kms: number
+  direction: string
+  burn_time_before_tca_h: number
+  miss_distance_km: number
+  risk_score: number
+  risk_level: string
+  miss_distance_delta_km: number
+  risk_reduction_pct: number
+  description: string
+}
+
+export interface BackendManeuverSimulationResponse {
+  conjunction_id: string
+  primary_name: string
+  secondary_name: string
+  original_miss_distance_km: number
+  original_risk_score: number
+  original_risk_level: string
+  tca: string
+  scenarios: BackendScenarioComparisonItem[]
+  recommendation: string
+  simulation_notes: string
+}
+
+export interface BackendManeuverRequest {
+  conjunction_id: string
+  delta_v_ms: number
+  direction: string
+  timing_offset_hours: number
+}
+
 export type ScenarioId = 'baseline' | 'scenarioA' | 'scenarioB' | 'custom'
 
 export interface SimulationScenario {
@@ -109,6 +144,7 @@ export interface SimulationScenario {
   riskScore: number
   riskLevel: RiskLevel
   riskReductionPct: number
+  description?: string
 }
 
 export interface SeparationPoint {
@@ -124,6 +160,8 @@ export interface SimulationResult {
   scenarios: SimulationScenario[]
   separation: SeparationPoint[]
   generatedAt: string
+  recommendation?: string
+  simulationNotes?: string
 }
 
 export interface AnalyticsSummary {
