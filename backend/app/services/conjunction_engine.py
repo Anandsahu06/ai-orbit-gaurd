@@ -286,13 +286,9 @@ class ConjunctionEngine:
                     miss_distance_km=0.42,
                     relative_velocity_kms=11.84,
                     time_to_tca_hours=14.5,
-                    risk_score=82.0,
-                    risk_level="HIGH",
-                    risk_factors=[
-                        "Minimum separation of 0.42 km is well below the 1.0 km hard screening threshold.",
-                        "Relative velocity of 11.84 km/s severely compresses collision geometry.",
-                        "TCA is approaching within 14.5 hours in a congested 542 km LEO orbit."
-                    ],
+                    risk_score=demo_score,
+                    risk_level=demo_level,
+                    risk_factors=demo_factors,
                     altitude_km=542.0,
                     is_demo=True,
                     status="ACTIVE"

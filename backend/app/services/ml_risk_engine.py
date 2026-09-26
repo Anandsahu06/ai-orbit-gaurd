@@ -1,5 +1,6 @@
 import math
 import logging
+import numpy as np
 from typing import Dict, Any, List, Tuple
 from app.ml.predict import predict_risk
 from app.ml.model_registry import model_registry
