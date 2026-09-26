@@ -1,69 +1,24 @@
 import math
 import logging
-import numpy as np
 from typing import Dict, Any, List, Tuple
-from sklearn.ensemble import RandomForestClassifier
+from app.ml.predict import predict_risk
+from app.ml.model_registry import model_registry
 
 logger = logging.getLogger(__name__)
 
 class MLRiskEngine:
-    def __init__(self):
-        self.model = RandomForestClassifier(n_estimators=50, random_state=42)
-        self._is_trained = False
-        self._train_prototype_model()
-
-    def _train_prototype_model(self):
-        """
-        Trains an explainable Random Forest classifier on derived physical orbital screening scenarios.
-        Features: [miss_distance_km, relative_velocity_kms, time_to_tca_hours, altitude_km]
-        Labels: 0: LOW, 1: MEDIUM, 2: HIGH, 3: CRITICAL
-        """
-        np.random.seed(42)
-        X = []
-        y = []
-
-        # Synthetic/derived calibration dataset across orbital regimes
-        # 1. Critical scenarios: Very close (< 2 km), short lead time (< 24h), high speed (> 8 km/s)
-        for _ in range(150):
-            d = np.random.uniform(0.05, 1.95)
-            v = np.random.uniform(8.0, 15.0)
-            t = np.random.uniform(1.0, 24.0)
-            alt = np.random.uniform(350.0, 800.0)
-            X.append([d, v, t, alt])
-            y.append(3) # CRITICAL
-
-        # 2. High risk scenarios: 2.0 km - 5.0 km
-        for _ in range(150):
-            d = np.random.uniform(2.0, 5.0)
-            v = np.random.uniform(6.0, 14.0)
-            t = np.random.uniform(6.0, 36.0)
-            alt = np.random.uniform(400.0, 900.0)
-            X.append([d, v, t, alt])
-            y.append(2) # HIGH
-
-        # 3. Medium risk scenarios: 5.0 km - 15.0 km
-        for _ in range(150):
-            d = np.random.uniform(5.0, 15.0)
-            v = np.random.uniform(4.0, 13.0)
-            t = np.random.uniform(12.0, 48.0)
-            alt = np.random.uniform(400.0, 1200.0)
-            X.append([d, v, t, alt])
-            y.append(1) # MEDIUM
-
-        # 4. Low risk scenarios: > 15.0 km or long lead time (> 48h)
-        for _ in range(150):
-            d = np.random.uniform(15.0, 50.0)
-            v = np.random.uniform(2.0, 12.0)
-            t = np.random.uniform(24.0, 72.0)
-            alt = np.random.uniform(400.0, 1400.0)
-            X.append([d, v, t, alt])
-            y.append(0) # LOW
-
-        X = np.array(X)
-        y = np.array(y)
-        self.model.fit(X, y)
-        self._is_trained = True
-        logger.info("Trained scikit-learn Random Forest orbital risk model.")
+    """
+    Modular STM Risk Assessment Engine.
+    Strictly separates:
+    A. Physics / Orbital inputs
+    B. Analytical baseline scoring (0-100)
+    C. Machine Learning risk classification (scikit-learn Random Forest)
+    
+    Scientific Honesty:
+    - Never presents scores as formal Probability of Collision (Pc).
+    - Formal Pc is explicitly marked as "Not available in current prototype".
+    - ML model is labeled as "Prototype model trained on synthetic data".
+    """
 
     def compute_risk_score(
         self,
@@ -77,7 +32,7 @@ class MLRiskEngine:
         and generates explainability factor attributions.
         """
         # 1. Base analytical formulation for smooth continuum scoring (0-100)
-        # Miss distance influence: exponential decay with scale 3.0 km
+        # Miss distance influence: exponential decay with scale 3.2 km
         dist_factor = math.exp(-miss_distance_km / 3.2) * 55.0
 
         # Relative velocity influence: higher closing velocity scales up kinetic hazard
@@ -89,45 +44,80 @@ class MLRiskEngine:
         raw_score = dist_factor + vel_factor + tca_factor
         score = max(5.0, min(98.0, round(raw_score, 1)))
 
-        # 2. ML Prediction validation
-        feat = np.array([[miss_distance_km, relative_velocity_kms, time_to_tca_hours, altitude_km]])
-        pred_class = int(self.model.predict(feat)[0])
-        
-        # Categorical level mapping
-        if score >= 80.0 or pred_class == 3:
+        # 2. Scikit-Learn ML inference
+        pred_idx, ml_label, prob_dict = predict_risk(
+            miss_distance_km, relative_velocity_kms, time_to_tca_hours, altitude_km
+        )
+
+        # Categorical level mapping: combination of continuum threshold and ML classifier
+        if score >= 80.0 or pred_idx == 3:
             level = "CRITICAL"
-        elif score >= 60.0 or pred_class == 2:
+        elif score >= 60.0 or pred_idx == 2:
             level = "HIGH"
-        elif score >= 40.0 or pred_class == 1:
+        elif score >= 35.0 or pred_idx == 1:
             level = "MEDIUM"
         else:
             level = "LOW"
 
-        # 3. Transparent factor attribution explanation
+        # 3. Physical explainability factor breakdown
         factors = []
         if miss_distance_km < 1.0:
-            factors.append(f"Critical miss distance: {miss_distance_km:.2f} km is well within the 1.0 km hard avoidance threshold.")
+            factors.append(f"Ultra-close miss distance of {miss_distance_km:.2f} km triggers emergency screening threshold.")
         elif miss_distance_km < 5.0:
-            factors.append(f"Low separation: {miss_distance_km:.2f} km is inside the 5.0 km operational screening safety bubble.")
+            factors.append(f"Separation of {miss_distance_km:.2f} km falls within the active orbital warning zone.")
         else:
-            factors.append(f"Moderate separation: {miss_distance_km:.2f} km exceeds close hazard thresholds.")
+            factors.append(f"Separation of {miss_distance_km:.2f} km provides moderate geometric clearance.")
 
         if relative_velocity_kms > 10.0:
-            factors.append(f"High relative closing velocity: {relative_velocity_kms:.2f} km/s severely compresses collision geometry.")
-        elif relative_velocity_kms > 5.0:
-            factors.append(f"Moderate relative closing velocity: {relative_velocity_kms:.2f} km/s.")
+            factors.append(f"Hyper-velocity closing speed ({relative_velocity_kms:.2f} km/s) amplifies kinetic collision severity.")
         else:
-            factors.append(f"Low closing velocity: {relative_velocity_kms:.2f} km/s.")
+            factors.append(f"Relative closing speed of {relative_velocity_kms:.2f} km/s.")
 
-        if time_to_tca_hours < 12.0:
-            factors.append(f"Imminent encounter: TCA in {time_to_tca_hours:.1f} hours limits coordination and ground pass verification.")
-        elif time_to_tca_hours < 24.0:
-            factors.append(f"Approaching window: TCA in {time_to_tca_hours:.1f} hours provides standard maneuver planning timeline.")
+        if time_to_tca_hours < 24.0:
+            factors.append(f"Approaching within {time_to_tca_hours:.1f} hours; decision lead time is compressed.")
         else:
-            factors.append(f"Extended lead time: TCA in {time_to_tca_hours:.1f} hours enables multi-orbit monitoring.")
-
-        factors.append(f"Orbital regime: LEO altitude at {altitude_km:.1f} km has elevated debris density.")
+            factors.append(f"TCA in {time_to_tca_hours:.1f} hours allows sufficient monitoring and planning margin.")
 
         return score, level, factors
+
+    def get_full_assessment(
+        self,
+        conjunction_id: str,
+        miss_distance_km: float,
+        relative_velocity_kms: float,
+        time_to_tca_hours: float,
+        altitude_km: float = 550.0
+    ) -> Dict[str, Any]:
+        """
+        Returns full structured risk assessment compliant with API requirements.
+        """
+        score, level, factors = self.compute_risk_score(
+            miss_distance_km, relative_velocity_kms, time_to_tca_hours, altitude_km
+        )
+        _, ml_label, class_probs = predict_risk(
+            miss_distance_km, relative_velocity_kms, time_to_tca_hours, altitude_km
+        )
+
+        meta = model_registry.active_metadata
+
+        return {
+            "conjunction_id": conjunction_id,
+            "risk_score": score,
+            "risk_level": level,
+            "scoring_method": "ANALYTICAL_CONTINUUM_AND_RANDOM_FOREST",
+            "model_version": meta.model_version if meta else "v1.0.0-rf-prototype",
+            "model_type": "Prototype Random Forest classifier",
+            "model_data_origin": "Prototype model trained on synthetic data",
+            "formal_pc": "Formal Pc: Not available in current prototype",
+            "pc_requirement_notes": "Calculation of formal Pc requires 6x6 covariance matrices and hard-body radii not published in public GP datasets.",
+            "ml_probabilities": class_probs,
+            "explainability_factors": factors,
+            "physical_parameters": {
+                "miss_distance_km": miss_distance_km,
+                "relative_velocity_kms": relative_velocity_kms,
+                "time_to_tca_hours": time_to_tca_hours,
+                "altitude_km": altitude_km
+            }
+        }
 
 ml_risk_engine = MLRiskEngine()

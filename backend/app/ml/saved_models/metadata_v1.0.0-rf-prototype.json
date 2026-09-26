@@ -1,0 +1,39 @@
+{
+  "model_version": "v1.0.0-rf-prototype",
+  "algorithm": "RandomForestClassifier",
+  "training_date": "2026-09-26T16:59:01.462430+00:00",
+  "training_data_type": "SYNTHETIC_CALIBRATION_PROTOTYPE",
+  "metrics": {
+    "precision_weighted": 1.0,
+    "recall_weighted": 1.0,
+    "f1_weighted": 1.0,
+    "confusion_matrix": [
+      [
+        52,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        25,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        33,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        40
+      ]
+    ],
+    "test_sample_count": 150
+  },
+  "description": "Prototype model trained on synthetic data for categorical risk tier classification."
+}

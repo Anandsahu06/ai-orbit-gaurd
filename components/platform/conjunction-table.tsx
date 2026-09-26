@@ -98,29 +98,29 @@ export function ConjunctionTable({ events, compact, sortKey, sortDir, onSort, se
                 </td>
                 <td className={td}>
                   <div className="flex flex-col">
-                    <span className="font-medium text-navy">{e.primaryObject.name}</span>
-                    <span className="text-xs text-muted-foreground">vs {e.secondaryObject.name}</span>
+                    <span className="font-medium text-navy">{e.primaryObject?.name ?? (e as any).primary_name ?? 'Primary Object'}</span>
+                    <span className="text-xs text-muted-foreground">vs {e.secondaryObject?.name ?? (e as any).secondary_name ?? 'Secondary Object'}</span>
                   </div>
                 </td>
                 <td className={td}>
                   <div className="flex flex-col">
                     <span className="font-mono text-xs text-navy tabular">{formatUtc(e.tca)}</span>
-                    <span className="font-mono text-[11px] text-muted-foreground tabular">{formatDuration(e.timeToTcaHours)}</span>
+                    <span className="font-mono text-[11px] text-muted-foreground tabular">{formatDuration(e.timeToTcaHours ?? (e as any).time_to_tca_hours)}</span>
                   </div>
                 </td>
-                <td className={cn(td, 'text-right font-mono text-navy tabular')}>{e.missDistanceKm.toFixed(2)} km</td>
+                <td className={cn(td, 'text-right font-mono text-navy tabular')}>{(e.missDistanceKm ?? (e as any).miss_distance_km ?? 0).toFixed(2)} km</td>
                 {!compact && (
-                  <td className={cn(td, 'text-right font-mono text-navy tabular')}>{e.relativeVelocityKms.toFixed(1)} km/s</td>
+                  <td className={cn(td, 'text-right font-mono text-navy tabular')}>{(e.relativeVelocityKms ?? (e as any).relative_velocity_kms ?? 0).toFixed(1)} km/s</td>
                 )}
                 <td className={td}>
                   <div className="flex items-center gap-3">
-                    <RiskScoreBar score={e.riskScore} level={e.riskLevel} className={compact ? 'hidden sm:flex' : ''} />
-                    <RiskBadge level={e.riskLevel} />
+                    <RiskScoreBar score={e.riskScore ?? 0} level={e.riskLevel ?? 'LOW'} className={compact ? 'hidden sm:flex' : ''} />
+                    <RiskBadge level={e.riskLevel ?? 'LOW'} />
                   </div>
                 </td>
                 {!compact && (
                   <td className={td}>
-                    <StatusBadge status={e.status} />
+                    <StatusBadge status={e.status ?? 'ACTIVE'} />
                   </td>
                 )}
                 <td className={cn(td, 'pr-3')}>

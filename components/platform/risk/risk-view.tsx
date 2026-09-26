@@ -42,8 +42,21 @@ export function RiskView({ initialId }: { initialId?: string }) {
     router.replace(`/platform/risk?event=${id}`, { scroll: false })
   }
 
+  const primaryObj = event?.primaryObject ?? {
+    id: (event as any)?.primary_id ?? 'P1',
+    name: (event as any)?.primary_name ?? 'Primary Object',
+    noradId: 0,
+    type: 'ACTIVE' as const
+  }
+  const secondaryObj = event?.secondaryObject ?? {
+    id: (event as any)?.secondary_id ?? 'P2',
+    name: (event as any)?.secondary_name ?? 'Secondary Object',
+    noradId: 0,
+    type: 'DEBRIS' as const
+  }
+
   const pairSats = event
-    ? (satellites.data ?? []).filter((s) => s.id === event.primaryObject.id || s.id === event.secondaryObject.id)
+    ? (satellites.data ?? []).filter((s) => s.id === primaryObj.id || s.id === secondaryObj.id)
     : []
 
   return (
@@ -80,20 +93,20 @@ export function RiskView({ initialId }: { initialId?: string }) {
 
             <Panel title="Event Geometry" description={<span className="font-mono">{event.id}</span>}>
               <div className="flex flex-col gap-4">
-                {[event.primaryObject, event.secondaryObject].map((o, i) => (
-                  <div key={o.id} className="flex items-center justify-between gap-2">
+                {[primaryObj, secondaryObj].map((o, i) => (
+                  <div key={o.id || i} className="flex items-center justify-between gap-2">
                     <div className="flex min-w-0 flex-col">
                       <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">{i === 0 ? 'Primary' : 'Secondary'}</span>
-                      <span className="truncate text-sm font-medium text-navy">{o.name}</span>
+                      <span className="truncate text-sm font-medium text-navy">{o?.name ?? 'Unknown Object'}</span>
                     </div>
-                    <ObjectTypeBadge type={o.type} />
+                    <ObjectTypeBadge type={o?.type ?? 'ACTIVE'} />
                   </div>
                 ))}
                 <dl className="grid grid-cols-2 gap-4 border-t pt-4">
                   <Metric label="TCA" value={formatUtc(event.tca)} className="col-span-2" />
-                  <Metric label="Time to TCA" value={formatDuration(event.timeToTcaHours)} />
-                  <Metric label="Miss Distance" value={`${event.missDistanceKm.toFixed(2)} km`} />
-                  <Metric label="Relative Velocity" value={`${event.relativeVelocityKms.toFixed(2)} km/s`} className="col-span-2" />
+                  <Metric label="Time to TCA" value={formatDuration(event.timeToTcaHours ?? (event as any).time_to_tca_hours ?? 0)} />
+                  <Metric label="Miss Distance" value={`${(event.missDistanceKm ?? (event as any).miss_distance_km ?? 0).toFixed(2)} km`} />
+                  <Metric label="Relative Velocity" value={`${(event.relativeVelocityKms ?? (event as any).relative_velocity_kms ?? 0).toFixed(2)} km/s`} className="col-span-2" />
                 </dl>
               </div>
             </Panel>
@@ -119,7 +132,7 @@ export function RiskView({ initialId }: { initialId?: string }) {
               ) : (
                 <ul className="flex flex-col gap-4">
                   {risk.data.factors.map((f) => {
-                    const Icon = FACTOR_ICON[f.key]
+                    const Icon = FACTOR_ICON[f.key] ?? Gauge
                     return (
                       <li key={f.key} className="flex gap-3">
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-orange-soft text-orange">
