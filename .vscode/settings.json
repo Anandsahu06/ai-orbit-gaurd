@@ -1,0 +1,13 @@
+{
+  "python.defaultInterpreterPath": "C:\\Users\\Saksham\\OneDrive\\Documents\\GitHub\\ai-orbit-gaurd\\.venv\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/backend",
+    "C:\\Users\\Saksham\\OneDrive\\Documents\\GitHub\\ai-orbit-gaurd\\.venv\\Lib\\site-packages",
+    "C:\\Users\\Saksham\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/backend",
+    "C:\\Users\\Saksham\\OneDrive\\Documents\\GitHub\\ai-orbit-gaurd\\.venv\\Lib\\site-packages",
+    "C:\\Users\\Saksham\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\site-packages"
+  ]
+}
