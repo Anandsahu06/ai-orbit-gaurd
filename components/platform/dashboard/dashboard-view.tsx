@@ -41,10 +41,10 @@ export function DashboardView() {
       />
 
       <section aria-label="Key metrics" className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Tracked Objects" icon={Satellite} loading={summary.isLoading} value={summary.data ? formatNumber(summary.data.trackedObjects) : '—'} hint="Active satellites and debris" />
-        <KpiCard label="Potential Conjunctions" icon={Radar} loading={summary.isLoading} value={summary.data?.potentialConjunctions ?? '—'} hint="Within screening horizon" />
-        <KpiCard label="High-Risk Events" icon={AlertTriangle} accent loading={summary.isLoading} value={summary.data?.highRiskEvents ?? '—'} hint="Risk level HIGH or CRITICAL" />
-        <KpiCard label="Last Data Update" icon={Clock} loading={summary.isLoading} value={<span className="font-mono text-xl">{summary.data ? formatUtc(summary.data.lastDataUpdate, false) : '—'}</span>} hint="Public TLE refresh" />
+        <KpiCard label="Tracked Objects" icon={Satellite} loading={summary.isLoading} value={summary.data ? formatNumber(summary.data.trackedObjects ?? (summary.data as any).tracked_objects_count) : '—'} hint="Active satellites and debris" />
+        <KpiCard label="Potential Conjunctions" icon={Radar} loading={summary.isLoading} value={summary.data?.potentialConjunctions ?? (summary.data as any)?.active_conjunctions_count ?? '—'} hint="Within screening horizon" />
+        <KpiCard label="High-Risk Events" icon={AlertTriangle} accent loading={summary.isLoading} value={summary.data?.highRiskEvents ?? (summary.data as any)?.high_risk_count ?? '—'} hint="Risk level HIGH or CRITICAL" />
+        <KpiCard label="Last Data Update" icon={Clock} loading={summary.isLoading} value={<span className="font-mono text-xl">{summary.data ? formatUtc(summary.data.lastDataUpdate ?? (summary.data as any).last_updated, false) : '—'}</span>} hint="Public TLE refresh" />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-3">

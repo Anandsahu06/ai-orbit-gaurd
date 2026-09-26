@@ -18,10 +18,10 @@ import { cn } from '@/lib/utils'
 type SortKey = 'name' | 'altitudeKm' | 'velocityKms' | 'inclinationDeg' | 'periodMin'
 
 const COLUMNS: { key: SortKey; label: string; align?: 'right'; render: (s: Satellite) => React.ReactNode }[] = [
-  { key: 'altitudeKm', label: 'Altitude', align: 'right', render: (s) => `${formatNumber(s.altitudeKm, 1)} km` },
-  { key: 'velocityKms', label: 'Velocity', align: 'right', render: (s) => `${s.velocityKms.toFixed(2)} km/s` },
-  { key: 'inclinationDeg', label: 'Incl.', align: 'right', render: (s) => `${s.inclinationDeg.toFixed(1)}°` },
-  { key: 'periodMin', label: 'Period', align: 'right', render: (s) => `${formatNumber(s.periodMin, 1)} min` },
+  { key: 'altitudeKm', label: 'Altitude', align: 'right', render: (s) => `${formatNumber(s.altitudeKm ?? (s as any).altitude_km, 1)} km` },
+  { key: 'velocityKms', label: 'Velocity', align: 'right', render: (s) => `${((s.velocityKms ?? (s as any).velocity_kms ?? 0)).toFixed(2)} km/s` },
+  { key: 'inclinationDeg', label: 'Incl.', align: 'right', render: (s) => `${((s.inclinationDeg ?? (s as any).inclination_deg ?? 0)).toFixed(1)}°` },
+  { key: 'periodMin', label: 'Period', align: 'right', render: (s) => `${formatNumber(s.periodMin ?? (s as any).period_min, 1)} min` },
 ]
 
 export function SatellitesView() {

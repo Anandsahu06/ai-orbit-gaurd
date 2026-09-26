@@ -51,12 +51,12 @@ export function AnalyticsView() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <KpiCard label="Tracked Objects" value={data.fleet.total} icon={Orbit} />
-            <KpiCard label="Active Satellites" value={data.fleet.active} icon={Satellite} />
-            <KpiCard label="Debris Objects" value={data.fleet.debris} icon={Trash2} />
+            <KpiCard label="Tracked Objects" value={data.fleet?.total ?? (data as any)?.tracked_objects ?? 0} icon={Orbit} />
+            <KpiCard label="Active Satellites" value={data.fleet?.active ?? 0} icon={Satellite} />
+            <KpiCard label="Debris Objects" value={data.fleet?.debris ?? 0} icon={Trash2} />
             <KpiCard
               label="Open Conjunctions"
-              value={data.riskDistribution.reduce((a, r) => a + r.count, 0)}
+              value={(data.riskDistribution ?? []).reduce((a, r) => a + (r?.count ?? 0), 0)}
               icon={AlertTriangle}
               accent
             />

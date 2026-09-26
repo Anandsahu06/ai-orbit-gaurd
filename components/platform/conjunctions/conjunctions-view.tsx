@@ -140,8 +140,11 @@ function ConjunctionDetailPanel({ event, onClose }: { event: ConjunctionEvent | 
         </div>
 
         <div className="flex flex-col gap-2">
-          {[event.primaryObject, event.secondaryObject].map((o, i) => (
-            <div key={o.id} className="flex items-center justify-between rounded-md border bg-subtle/60 px-3 py-2">
+          {[
+            event.primaryObject ?? { id: (event as any).primary_id ?? 'P1', name: (event as any).primary_name ?? 'Primary Object', noradId: 0, type: 'ACTIVE' as const },
+            event.secondaryObject ?? { id: (event as any).secondary_id ?? 'P2', name: (event as any).secondary_name ?? 'Secondary Object', noradId: 0, type: 'DEBRIS' as const }
+          ].map((o, i) => (
+            <div key={o.id || i} className="flex items-center justify-between rounded-md border bg-subtle/60 px-3 py-2">
               <div className="flex flex-col">
                 <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">{i === 0 ? 'Primary' : 'Secondary'}</span>
                 <span className="text-sm font-medium text-navy">{o.name}</span>
@@ -154,10 +157,10 @@ function ConjunctionDetailPanel({ event, onClose }: { event: ConjunctionEvent | 
 
         <dl className="grid grid-cols-2 gap-4">
           <Metric label="TCA" value={formatUtc(event.tca)} className="col-span-2" />
-          <Metric label="Time to TCA" value={formatDuration(event.timeToTcaHours)} />
-          <Metric label="Miss Distance" value={`${event.missDistanceKm.toFixed(2)} km`} />
-          <Metric label="Relative Velocity" value={`${event.relativeVelocityKms.toFixed(2)} km/s`} />
-          <Metric label="Risk Score" value={`${event.riskScore} / 100`} />
+          <Metric label="Time to TCA" value={formatDuration(event.timeToTcaHours ?? (event as any).time_to_tca_hours)} />
+          <Metric label="Miss Distance" value={`${(event.missDistanceKm ?? (event as any).miss_distance_km ?? 0).toFixed(2)} km`} />
+          <Metric label="Relative Velocity" value={`${(event.relativeVelocityKms ?? (event as any).relative_velocity_kms ?? 0).toFixed(2)} km/s`} />
+          <Metric label="Risk Score" value={`${event.riskScore ?? 0} / 100`} />
         </dl>
 
         <div className="flex flex-col gap-2">

@@ -198,19 +198,89 @@ class TLEService:
         return 0
 
     def get_all_objects(self) -> List[Dict]:
+        """Returns objects from database if populated, or cached catalog."""
+        try:
+            from app.database import SessionLocal
+            from app.repositories.satellite_repository import satellite_repo
+            db = SessionLocal()
+            satellites = satellite_repo.list_satellites(db, limit=300)
+            if satellites and len(satellites) > 0:
+                results = []
+                for s in satellites:
+                    el = satellite_repo.get_latest_orbital_element(db, s.id)
+                    results.append({
+                        "norad_id": str(s.norad_id),
+                        "name": s.name,
+                        "object_type": s.object_type,
+                        "orbit_type": "LEO",
+                        "tle_line1": el.tle_line1 if el and el.tle_line1 else "",
+                        "tle_line2": el.tle_line2 if el and el.tle_line2 else "",
+                        "status": s.status
+                    })
+                db.close()
+                return results
+            db.close()
+        except Exception as e:
+            logger.debug(f"Database lookup in get_all_objects fell back: {e}")
         return list(self._cache.values())
 
     def get_object(self, norad_id: str) -> Optional[Dict]:
+        """Returns object from database or cached catalog."""
+        try:
+            from app.database import SessionLocal
+            from app.repositories.satellite_repository import satellite_repo
+            if norad_id.isdigit():
+                db = SessionLocal()
+                sat = satellite_repo.get_by_norad_id(db, int(norad_id))
+                if sat:
+                    el = satellite_repo.get_latest_orbital_element(db, sat.id)
+                    res = {
+                        "norad_id": str(sat.norad_id),
+                        "name": sat.name,
+                        "object_type": sat.object_type,
+                        "orbit_type": "LEO",
+                        "tle_line1": el.tle_line1 if el and el.tle_line1 else "",
+                        "tle_line2": el.tle_line2 if el and el.tle_line2 else "",
+                        "status": sat.status
+                    }
+                    db.close()
+                    return res
+                db.close()
+        except Exception as e:
+            logger.debug(f"Database lookup for {norad_id} fell back: {e}")
         return self._cache.get(str(norad_id))
 
     def get_satrec(self, norad_id: str) -> Optional[Satrec]:
         obj = self.get_object(norad_id)
         if not obj:
             return None
+        line1 = obj.get("tle_line1")
+        line2 = obj.get("tle_line2")
+        if line1 and line2 and len(line1) >= 68 and len(line2) >= 68:
+            try:
+                return Satrec.twoline2rv(line1, line2, WGS72)
+            except Exception as e:
+                logger.debug(f"Error parsing TLE for NORAD ID {norad_id}: {e}")
+
+        # Try database orbital element with sgp4init
         try:
-            return Satrec.twoline2rv(obj["tle_line1"], obj["tle_line2"], WGS72)
-        except Exception as e:
-            logger.error(f"Error parsing TLE for NORAD ID {norad_id}: {e}")
-            return None
+            from app.database import SessionLocal
+            from app.repositories.satellite_repository import satellite_repo
+            from app.services.orbital_engine import satrec_from_orbital_element
+            if norad_id.isdigit():
+                db = SessionLocal()
+                sat = satellite_repo.get_by_norad_id(db, int(norad_id))
+                if sat:
+                    el = satellite_repo.get_latest_orbital_element(db, sat.id)
+                    if el:
+                        srec = satrec_from_orbital_element(el)
+                        db.close()
+                        return srec
+                db.close()
+        except Exception:
+            pass
+
+        return None
 
 tle_service = TLEService()
+

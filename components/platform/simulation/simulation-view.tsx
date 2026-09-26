@@ -72,7 +72,7 @@ export function SimulationView({ initialId }: { initialId?: string }) {
       ) : (
         <div className="flex flex-col gap-6">
           <div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
-            <Panel title="Custom Maneuver" description={`Maneuvering object: ${event.primaryObject.name}`}>
+            <Panel title="Custom Maneuver" description={`Maneuvering object: ${event.primaryObject?.name ?? (event as any).primary_name ?? 'Primary Object'}`}>
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
@@ -185,27 +185,27 @@ function ScenarioCard({ scenario: s }: { scenario: SimulationScenario }) {
         <RiskBadge level={s.riskLevel} />
       </div>
       <p className="font-mono text-[11px] text-muted-foreground">
-        {isBaseline ? 'No maneuver' : `${s.deltaVMs.toFixed(2)} m/s · ${s.direction?.toLowerCase()} · T-${s.leadTimeHours}h`}
+        {isBaseline ? 'No maneuver' : `${(s.deltaVMs ?? 0).toFixed(2)} m/s · ${s.direction?.toLowerCase() ?? 'prograde'} · T-${s.leadTimeHours ?? 0}h`}
       </p>
       <dl className="grid grid-cols-2 gap-3">
         <div>
           <dt className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Miss dist.</dt>
-          <dd className="font-mono text-lg font-semibold text-navy tabular">{s.missDistanceKm.toFixed(2)}<span className="ml-0.5 text-xs font-normal text-muted-foreground">km</span></dd>
+          <dd className="font-mono text-lg font-semibold text-navy tabular">{(s.missDistanceKm ?? 0).toFixed(2)}<span className="ml-0.5 text-xs font-normal text-muted-foreground">km</span></dd>
         </div>
         <div>
           <dt className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">Risk score</dt>
-          <dd className="font-mono text-lg font-semibold text-navy tabular">{s.riskScore}</dd>
+          <dd className="font-mono text-lg font-semibold text-navy tabular">{s.riskScore ?? 0}</dd>
         </div>
       </dl>
       <div className="flex flex-col gap-1.5">
         <div className="flex justify-between text-[11px]">
           <span className="text-muted-foreground">Risk reduction</span>
           <span className={cn('font-semibold tabular', isBaseline ? 'text-muted-foreground' : 'text-success')}>
-            {isBaseline ? '—' : `${s.riskReductionPct.toFixed(1)}%`}
+            {isBaseline ? '—' : `${(s.riskReductionPct ?? 0).toFixed(1)}%`}
           </span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
-          <div className="h-full rounded-full bg-success" style={{ width: `${Math.max(0, Math.min(100, s.riskReductionPct))}%` }} />
+          <div className="h-full rounded-full bg-success" style={{ width: `${Math.max(0, Math.min(100, s.riskReductionPct ?? 0))}%` }} />
         </div>
       </div>
     </article>

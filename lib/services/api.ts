@@ -89,9 +89,9 @@ function normalizeSimulationResponse(
   const backend = raw as BackendManeuverSimulationResponse
   const scenarios: SimulationScenario[] = (backend.scenarios ?? []).map((s) => {
     let id: ScenarioId = 'custom'
-    if (s.scenario_id === 'SCEN-0') id = 'baseline'
-    else if (s.scenario_id === 'SCEN-A') id = 'scenarioA'
-    else if (s.scenario_id === 'SCEN-B') id = 'scenarioB'
+    if (s.scenario_id === 'SCEN-0' || s.scenario_id === 'baseline') id = 'baseline'
+    else if (s.scenario_id === 'SCEN-A' || s.scenario_id === 'SCEN-1' || s.scenario_id === 'scenarioA') id = 'scenarioA'
+    else if (s.scenario_id === 'SCEN-B' || s.scenario_id === 'SCEN-2' || s.scenario_id === 'scenarioB') id = 'scenarioB'
 
     const dir = s.direction?.toUpperCase()
     const validDir: ManeuverDirection | null =

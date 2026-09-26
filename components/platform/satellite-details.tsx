@@ -15,14 +15,14 @@ export function SatelliteDetails({ satellite }: { satellite: Satellite }) {
         <p className="font-mono text-xs text-muted-foreground">NORAD {satellite.noradId}</p>
       </div>
       <dl className="grid grid-cols-2 gap-x-4 gap-y-4">
-        <Metric label="Altitude" value={`${formatNumber(satellite.altitudeKm, 1)} km`} />
-        <Metric label="Velocity" value={`${satellite.velocityKms.toFixed(2)} km/s`} />
-        <Metric label="Latitude" value={`${satellite.latitudeDeg.toFixed(2)}°`} />
-        <Metric label="Longitude" value={`${satellite.longitudeDeg.toFixed(2)}°`} />
-        <Metric label="Inclination" value={`${satellite.inclinationDeg.toFixed(2)}°`} />
-        <Metric label="Period" value={`${formatNumber(satellite.periodMin, 1)} min`} />
-        <Metric label="Eccentricity" value={satellite.eccentricity.toFixed(4)} />
-        <Metric label="State Epoch" value={formatUtc(satellite.stateEpoch, false)} />
+        <Metric label="Altitude" value={`${formatNumber(satellite.altitudeKm ?? (satellite as any).altitude_km, 1)} km`} />
+        <Metric label="Velocity" value={`${(satellite.velocityKms ?? (satellite as any).velocity_kms ?? 0).toFixed(2)} km/s`} />
+        <Metric label="Latitude" value={`${(satellite.latitudeDeg ?? (satellite as any).latitude_deg ?? 0).toFixed(2)}°`} />
+        <Metric label="Longitude" value={`${(satellite.longitudeDeg ?? (satellite as any).longitude_deg ?? 0).toFixed(2)}°`} />
+        <Metric label="Inclination" value={`${(satellite.inclinationDeg ?? (satellite as any).inclination_deg ?? 0).toFixed(2)}°`} />
+        <Metric label="Period" value={`${formatNumber(satellite.periodMin ?? (satellite as any).period_min, 1)} min`} />
+        <Metric label="Eccentricity" value={(satellite.eccentricity ?? 0).toFixed(4)} />
+        <Metric label="State Epoch" value={formatUtc(satellite.stateEpoch ?? (satellite as any).state_epoch, false)} />
       </dl>
       <p className="border-t pt-3 text-[11px] leading-relaxed text-muted-foreground">
         State propagated by backend (SGP4) from TLE epoch {formatUtc(satellite.tleEpoch)}.

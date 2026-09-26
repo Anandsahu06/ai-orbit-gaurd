@@ -12,6 +12,7 @@ import { PrototypeBadge } from '@/components/shared/badges'
 import { PageHeader, SegmentedControl } from '@/components/shared/primitives'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { useConjunctions, useOrbitTracks, useSatellites } from '@/hooks/use-api'
+import { formatNumber } from '@/lib/format'
 import type { ObjectType } from '@/lib/types/api'
 import { cn } from '@/lib/utils'
 
@@ -145,7 +146,7 @@ export function LiveOrbitView({ initialId }: { initialId?: string }) {
                             {s.noradId} · {s.regime}
                           </span>
                         </span>
-                        <span className="font-mono text-xs text-muted-foreground tabular">{Math.round(s.altitudeKm).toLocaleString()} km</span>
+                        <span className="font-mono text-xs text-muted-foreground tabular">{formatNumber(s.altitudeKm ?? (s as any).altitude_km, 0)} km</span>
                       </button>
                     </li>
                   )
