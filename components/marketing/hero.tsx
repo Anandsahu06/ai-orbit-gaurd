@@ -19,10 +19,6 @@ export function Hero() {
       />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 md:px-6 lg:grid-cols-[1fr_1.1fr] lg:py-24">
         <div className="flex flex-col gap-6">
-          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-orange/30 bg-orange-soft px-3 py-1 text-xs font-semibold tracking-wide text-orange uppercase">
-            <span className="size-1.5 rounded-full bg-orange" aria-hidden="true" />
-            Orbital decision support
-          </span>
           <h1 className="text-4xl leading-[1.05] font-bold tracking-tight text-balance text-navy sm:text-5xl lg:text-6xl">
             AI-Assisted
             <br />

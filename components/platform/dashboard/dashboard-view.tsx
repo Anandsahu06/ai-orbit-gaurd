@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { OrbitGlobe } from '@/components/orbit/orbit-globe'
 import { OrbitLegend } from '@/components/orbit/orbit-legend'
 import { ConjunctionTable } from '@/components/platform/conjunction-table'
-import { PrototypeBadge, RiskBadge, SeverityBadge } from '@/components/shared/badges'
+import { RiskBadge, SeverityBadge } from '@/components/shared/badges'
 import { KpiCard, PageHeader, Panel } from '@/components/shared/primitives'
 import { EmptyState, ErrorState, TableSkeleton } from '@/components/shared/states'
 import { useAlerts, useConjunctions, useDashboardSummary, useOrbitTracks, useSatellites } from '@/hooks/use-api'
@@ -32,7 +32,6 @@ export function DashboardView() {
         eyebrow="Overview"
         title="Mission Dashboard"
         description="Screening summary across all tracked objects within the current 72-hour horizon."
-        badge={<PrototypeBadge />}
         actions={
           <Button nativeButton={false} render={<Link href="/platform/conjunctions" />} className="bg-orange text-white hover:bg-orange/90">
             Review conjunctions

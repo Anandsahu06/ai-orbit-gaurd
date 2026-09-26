@@ -8,7 +8,6 @@ import {
   ProblemSection,
   ProductPreviewSection,
   SimulationSection,
-  TeamSection,
   TechnologySection,
 } from '@/components/marketing/sections'
 import { SiteFooter } from '@/components/marketing/site-footer'
@@ -28,7 +27,6 @@ export default function HomePage() {
         <AiSection />
         <SimulationSection />
         <AboutSection />
-        <TeamSection />
         <CtaSection />
       </main>
       <SiteFooter />

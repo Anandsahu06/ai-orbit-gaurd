@@ -67,17 +67,8 @@ export function ObjectTypeBadge({ type }: { type: ObjectType }) {
   )
 }
 
-export function PrototypeBadge({ label = 'Prototype Sample Data', className }: { label?: string; className?: string }) {
-  return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 rounded-md border border-dashed border-orange/40 bg-orange-soft px-2 py-0.5 text-[11px] font-medium text-orange',
-        className,
-      )}
-    >
-      {label}
-    </span>
-  )
+export function PrototypeBadge(_props?: { label?: string; className?: string }) {
+  return null
 }
 
 export function StatusDot({ tone = 'success', pulse = false }: { tone?: 'success' | 'warning' | 'danger' | 'muted'; pulse?: boolean }) {

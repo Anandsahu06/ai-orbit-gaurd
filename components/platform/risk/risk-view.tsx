@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
 import { OrbitGlobe } from '@/components/orbit/orbit-globe'
 import { EventSelector } from '@/components/platform/event-selector'
-import { ObjectTypeBadge, PrototypeBadge, RiskBadge } from '@/components/shared/badges'
+import { ObjectTypeBadge, RiskBadge } from '@/components/shared/badges'
 import { Metric, PageHeader, Panel } from '@/components/shared/primitives'
 import { RiskGauge } from '@/components/shared/risk-score'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
@@ -52,7 +52,6 @@ export function RiskView({ initialId }: { initialId?: string }) {
         eyebrow="Assess"
         title="Risk Analysis"
         description="Explainable view of the backend risk assessment for a selected conjunction event."
-        badge={<PrototypeBadge />}
         actions={events.length > 0 && <EventSelector events={events} value={eventId} onChange={selectEvent} />}
       />
 
@@ -126,10 +125,10 @@ export function RiskView({ initialId }: { initialId?: string }) {
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-orange-soft text-orange">
                           <Icon className="size-4" aria-hidden="true" />
                         </span>
-                        <div className="flex min-w-0 flex-col gap-0.5">
-                          <div className="flex items-baseline justify-between gap-2">
+                        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <div className="flex items-baseline justify-between gap-4">
                             <span className="text-sm font-medium text-navy">{f.label}</span>
-                            <span className="font-mono text-sm font-semibold text-navy tabular">{f.displayValue}</span>
+                            <span className="font-mono text-sm font-semibold text-navy tabular-nums shrink-0 text-right">{f.displayValue}</span>
                           </div>
                           <p className="text-xs leading-relaxed text-muted-foreground">{f.description}</p>
                         </div>

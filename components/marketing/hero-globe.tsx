@@ -35,9 +35,6 @@ export function HeroGlobe() {
           <span className="font-mono text-[11px] text-white/70">Miss distance {formatKm(top.missDistanceKm)}</span>
         </div>
       )}
-      <span className="pointer-events-none absolute top-4 right-4 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[10px] font-medium tracking-wide text-white/70 uppercase">
-        Prototype sample data
-      </span>
     </div>
   )
 }

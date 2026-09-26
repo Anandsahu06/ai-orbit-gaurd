@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { appNav } from '@/lib/config/site'
 import { cn } from '@/lib/utils'
 import { Logo } from '@/components/brand/logo'
-import { PrototypeBadge } from '@/components/shared/badges'
 
 export function AppNavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
@@ -54,12 +53,6 @@ export function AppSidebar({ className }: { className?: string }) {
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-5">
         <AppNavList />
-      </div>
-      <div className="flex flex-col gap-2 border-t px-5 py-4">
-        <PrototypeBadge className="self-start" />
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
-          Decision-support prototype. Not an operational collision-avoidance system.
-        </p>
       </div>
     </aside>
   )

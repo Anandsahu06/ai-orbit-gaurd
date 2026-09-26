@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FlaskConical, Info, Loader2, Play } from 'lucide-react'
+import { FlaskConical, Loader2, Play } from 'lucide-react'
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 import { Button } from '@/components/ui/button'
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { EventSelector } from '@/components/platform/event-selector'
-import { PrototypeBadge, RiskBadge } from '@/components/shared/badges'
+import { RiskBadge } from '@/components/shared/badges'
 import { PageHeader, Panel, SegmentedControl } from '@/components/shared/primitives'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { useConjunctions, useRunSimulation, useSimulationScenarios } from '@/hooks/use-api'
@@ -60,17 +60,8 @@ export function SimulationView({ initialId }: { initialId?: string }) {
         eyebrow="Simulate"
         title="Avoidance Simulation"
         description="Compare avoidance maneuver scenarios returned by the backend simulation service against the baseline trajectory."
-        badge={<PrototypeBadge />}
         actions={events.length > 0 && <EventSelector events={events} value={eventId} onChange={selectEvent} />}
       />
-
-      <div role="note" className="flex gap-3 rounded-lg border border-warning/25 bg-warning-soft px-4 py-3 text-sm text-navy">
-        <Info className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" />
-        <p>
-          <span className="font-semibold">Prototype scenarios.</span> Values shown are illustrative placeholders until the flight-dynamics
-          backend is connected. They are not an operational maneuver recommendation.
-        </p>
-      </div>
 
       {conjunctions.error ? (
         <ErrorState onRetry={() => conjunctions.mutate()} />
@@ -79,55 +70,55 @@ export function SimulationView({ initialId }: { initialId?: string }) {
       ) : !event ? (
         <EmptyState title="No open conjunctions." description="There are no unresolved events to simulate." />
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-          <Panel title="Custom Maneuver" description={`Maneuvering object: ${event.primaryObject.name}`} className="xl:self-start">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="dv">Delta-V</Label>
-                  <span className="font-mono text-sm font-semibold text-navy tabular">{deltaV.toFixed(2)} m/s</span>
+        <div className="flex flex-col gap-6">
+          <div className="grid gap-6 xl:grid-cols-[340px_minmax(0,1fr)]">
+            <Panel title="Custom Maneuver" description={`Maneuvering object: ${event.primaryObject.name}`}>
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="dv">Delta-V</Label>
+                    <span className="font-mono text-sm font-semibold text-navy tabular">{deltaV.toFixed(2)} m/s</span>
+                  </div>
+                  <Slider id="dv" min={0.05} max={2} step={0.05} value={[deltaV]} onValueChange={(v) => setDeltaV(sliderValue(v))} aria-label="Delta-V in metres per second" />
                 </div>
-                <Slider id="dv" min={0.05} max={2} step={0.05} value={[deltaV]} onValueChange={(v) => setDeltaV(sliderValue(v))} aria-label="Delta-V in metres per second" />
-              </div>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="lead">Lead time before TCA</Label>
-                  <span className="font-mono text-sm font-semibold text-navy tabular">{leadTime.toFixed(1)} h</span>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="lead">Lead time before TCA</Label>
+                    <span className="font-mono text-sm font-semibold text-navy tabular">{leadTime.toFixed(1)} h</span>
+                  </div>
+                  <Slider id="lead" min={0.5} max={12} step={0.5} value={[leadTime]} onValueChange={(v) => setLeadTime(sliderValue(v))} aria-label="Lead time in hours" />
                 </div>
-                <Slider id="lead" min={0.5} max={12} step={0.5} value={[leadTime]} onValueChange={(v) => setLeadTime(sliderValue(v))} aria-label="Lead time in hours" />
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm font-medium">Burn direction</span>
+                  <SegmentedControl
+                    label="Burn direction"
+                    value={direction}
+                    onChange={setDirection}
+                    size="sm"
+                    className="w-full"
+                    options={[
+                      { value: 'PROGRADE', label: 'Prograde' },
+                      { value: 'RETROGRADE', label: 'Retro' },
+                      { value: 'RADIAL', label: 'Radial' },
+                      { value: 'NORMAL', label: 'Normal' },
+                    ]}
+                  />
+                </div>
+                <Button onClick={runCustom} disabled={run.isMutating} className="bg-orange text-white hover:bg-orange/90">
+                  {run.isMutating ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <Play data-icon="inline-start" />}
+                  {run.isMutating ? 'Running simulation…' : 'Run Simulation'}
+                </Button>
+                {run.error && <p className="text-xs text-danger" role="alert">Simulation request failed. Try again.</p>}
               </div>
-              <div className="flex flex-col gap-3">
-                <span className="text-sm font-medium">Burn direction</span>
-                <SegmentedControl
-                  label="Burn direction"
-                  value={direction}
-                  onChange={setDirection}
-                  size="sm"
-                  className="w-full"
-                  options={[
-                    { value: 'PROGRADE', label: 'Prograde' },
-                    { value: 'RETROGRADE', label: 'Retro' },
-                    { value: 'RADIAL', label: 'Radial' },
-                    { value: 'NORMAL', label: 'Normal' },
-                  ]}
-                />
-              </div>
-              <Button onClick={runCustom} disabled={run.isMutating} className="bg-orange text-white hover:bg-orange/90">
-                {run.isMutating ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <Play data-icon="inline-start" />}
-                {run.isMutating ? 'Running simulation…' : 'Run Simulation'}
-              </Button>
-              {run.error && <p className="text-xs text-danger" role="alert">Simulation request failed. Try again.</p>}
-            </div>
-          </Panel>
+            </Panel>
 
-          <div className="flex min-w-0 flex-col gap-6">
-            {scenarios.error ? (
-              <ErrorState onRetry={() => scenarios.mutate()} />
-            ) : !result ? (
-              <LoadingState label="Loading scenarios…" />
-            ) : (
-              <>
-                <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-4">
+            <div className="flex min-w-0 flex-col gap-6">
+              {scenarios.error ? (
+                <ErrorState onRetry={() => scenarios.mutate()} />
+              ) : !result ? (
+                <LoadingState label="Loading scenarios…" />
+              ) : (
+                <div className="grid h-full gap-4 sm:grid-cols-2">
                   {result.scenarios.map((s) => (
                     <ScenarioCard key={s.id} scenario={s} />
                   ))}
@@ -139,25 +130,31 @@ export function SimulationView({ initialId }: { initialId?: string }) {
                     </div>
                   )}
                 </div>
-
-                <Panel title="Predicted Separation Around TCA" description={`Distance between objects (km) · generated ${formatUtc(result.generatedAt)}`}>
-                  <ChartContainer config={chartConfig} className="aspect-auto h-[300px] w-full">
-                    <LineChart data={result.separation} margin={{ left: -12, right: 12, top: 8 }}>
-                      <CartesianGrid vertical={false} />
-                      <XAxis dataKey="tMinutes" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(v) => (v === 0 ? 'TCA' : `${v > 0 ? '+' : ''}${v}m`)} />
-                      <YAxis tickLine={false} axisLine={false} width={44} />
-                      <ChartTooltip content={<ChartTooltipContent labelFormatter={(_, p) => `T ${Number(p?.[0]?.payload?.tMinutes) >= 0 ? '+' : ''}${p?.[0]?.payload?.tMinutes} min`} />} />
-                      <ChartLegend content={<ChartLegendContent />} />
-                      <Line dataKey="baseline" type="monotone" stroke="var(--color-baseline)" strokeWidth={2} dot={false} strokeDasharray="5 4" />
-                      <Line dataKey="scenarioA" type="monotone" stroke="var(--color-scenarioA)" strokeWidth={2} dot={false} />
-                      <Line dataKey="scenarioB" type="monotone" stroke="var(--color-scenarioB)" strokeWidth={2} dot={false} />
-                      {customResult && <Line dataKey="custom" type="monotone" stroke="var(--color-custom)" strokeWidth={2.5} dot={false} />}
-                    </LineChart>
-                  </ChartContainer>
-                </Panel>
-              </>
-            )}
+              )}
+            </div>
           </div>
+
+          {result && (
+            <Panel
+              title="Predicted Separation Around TCA"
+              description={`Distance between objects (km) · generated ${formatUtc(result.generatedAt)}`}
+              className="w-full"
+            >
+              <ChartContainer config={chartConfig} className="aspect-auto h-[320px] w-full">
+                <LineChart data={result.separation} margin={{ left: -12, right: 12, top: 8 }}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis dataKey="tMinutes" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(v) => (v === 0 ? 'TCA' : `${v > 0 ? '+' : ''}${v}m`)} />
+                  <YAxis tickLine={false} axisLine={false} width={44} />
+                  <ChartTooltip content={<ChartTooltipContent labelFormatter={(_, p) => `T ${Number(p?.[0]?.payload?.tMinutes) >= 0 ? '+' : ''}${p?.[0]?.payload?.tMinutes} min`} />} />
+                  <ChartLegend content={<ChartLegendContent />} />
+                  <Line dataKey="baseline" type="monotone" stroke="var(--color-baseline)" strokeWidth={2} dot={false} strokeDasharray="5 4" />
+                  <Line dataKey="scenarioA" type="monotone" stroke="var(--color-scenarioA)" strokeWidth={2} dot={false} />
+                  <Line dataKey="scenarioB" type="monotone" stroke="var(--color-scenarioB)" strokeWidth={2} dot={false} />
+                  {customResult && <Line dataKey="custom" type="monotone" stroke="var(--color-custom)" strokeWidth={2.5} dot={false} />}
+                </LineChart>
+              </ChartContainer>
+            </Panel>
+          )}
         </div>
       )}
     </>

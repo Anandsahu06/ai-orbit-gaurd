@@ -15,10 +15,8 @@ import {
   Scale,
   Server,
   ShieldAlert,
-  User,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { team } from '@/lib/config/site'
 import { cn } from '@/lib/utils'
 
 function SectionHeading({ eyebrow, title, description, center }: { eyebrow: string; title: string; description?: string; center?: boolean }) {
@@ -391,39 +389,6 @@ export function AboutSection() {
           </ul>
         </div>
       </div>
-    </Section>
-  )
-}
-
-export function TeamSection() {
-  return (
-    <Section id="team" className="bg-white">
-      <SectionHeading eyebrow={`Team ${team.name}`} title="Meet the Team" />
-      <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {team.members.map((m, i) => (
-          <li key={`${m.name}-${i}`} className="flex flex-col items-center gap-3 rounded-xl border p-6 text-center">
-            <span className="flex size-20 items-center justify-center rounded-full bg-muted text-muted-foreground" aria-hidden="true">
-              <User className="size-8" />
-            </span>
-            <div>
-              <p className="font-semibold text-navy">{m.name}</p>
-              <p className="text-sm text-muted-foreground">{m.role}</p>
-            </div>
-            <div className="flex gap-3 text-xs font-medium">
-              {m.github ? (
-                <a href={m.github} className="text-navy hover:text-orange">GitHub</a>
-              ) : (
-                <span className="text-muted-foreground/60">GitHub</span>
-              )}
-              {m.linkedin ? (
-                <a href={m.linkedin} className="text-navy hover:text-orange">LinkedIn</a>
-              ) : (
-                <span className="text-muted-foreground/60">LinkedIn</span>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
     </Section>
   )
 }
