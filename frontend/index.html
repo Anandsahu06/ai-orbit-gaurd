@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OrbitalGuard AI - Space Traffic Management Platform</title>
+    <meta name="description" content="AI-assisted space traffic management platform for tracking satellite orbits, detecting conjunctions, and evaluating collision avoidance maneuvers." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      window.CESIUM_BASE_URL = '/cesiumStatic/';
+    </script>
+    <script>
+      window.addEventListener('error', function(e) {
+        console.error('CRITICAL CLIENT ERROR:', e.error || e.message);
+        var el = document.getElementById('error-display');
+        if (el) {
+          el.style.display = 'block';
+          el.innerText = 'JavaScript Error: ' + (e.error ? (e.error.stack || e.error.message) : e.message);
+        }
+      });
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('UNHANDLED REJECTION:', e.reason);
+        var el = document.getElementById('error-display');
+        if (el) {
+          el.style.display = 'block';
+          el.innerText = 'Promise Rejection: ' + (e.reason ? (e.reason.stack || e.reason.message || e.reason) : e.reason);
+        }
+      });
+    </script>
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-orange-100 selection:text-orange-900 font-sans">
+    <div id="error-display" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#fee2e2;color:#991b1b;padding:16px;font-family:monospace;font-size:12px;white-space:pre-wrap;border-bottom:2px solid #ef4444;"></div>
+    <div id="root">
+      <div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;color:#64748b;font-size:14px;">
+        Loading OrbitalGuard AI...
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
